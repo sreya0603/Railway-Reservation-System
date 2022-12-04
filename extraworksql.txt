@@ -1,0 +1,123 @@
+create table route(
+	train_no integer,
+	date date,
+	station_id1 varchar(4),
+	day integer,
+	arr_time time,
+	dep_time time,
+	primary key(train_no,date,station_id,day,arr_time,dep_time)
+);
+
+create or replace function check_journey(s1 varchar(4),s2 varchar(4),d date, t TIME)
+returns int as $$
+declare count integer;
+a RECORD;
+cur cursor for (select r2.station_id as station_id,r2.arr_time as arr_time,r2.date as d1, r2.day as DAY from route r2,route r1
+where r1.station_id<>r2.station_id and r1.station_id=s1 and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date)) 
+and r1.train_no=r2.train_no and (r1.date-r1.day)=(r2.date-r2.day)); 
+begin
+select into count count(*) 
+from route r1, route r2
+where r1.station_id=s1 and r2.station_id=s2 and r1.train_no=r2.train_no and r1.date=d and (r1.date-r1.day)=(r2.date-r2.day) and r1.dep_time>=t and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date));
+if count >=1 then
+return 1;
+end if;
+if count=0 then
+open cur;
+	loop
+	fetch cur into a;
+	exit when not found;
+	select into count count(*) 
+	from route r1, route r2
+	where r1.station_id=a.station_id and r2.station_id=s2 and r1.train_no=r2.train_no and r1.date=a.d1 and r1.date<=r2.date and (r1.date-r1.day)=(r2.date-r2.day) and r1.dep_time>=a.arr_time and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date));
+	if count >=1  then
+	return 2;
+	end if;
+	end loop;
+close cur;
+end if;
+return 0;
+end;
+$$ LANGUAGE plpgsql;
+
+select check_journey('UHL','HDL','2022-11-16','05:10');
+
+select * from route r2,route r1
+where r1.station_id<>r2.station_id and r1.station_id='HDL' and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date)) and r1.train_no=r2.train_no and (r1.date-r1.day)=(r2.date-r2.day)
+
+
+create table route(
+	train_no integer,
+	date date,
+	station_id varchar(4),
+	day integer,
+	arr_time time,
+	dep_time time,
+	primary key(train_no,date,station_id,day,arr_time,dep_time)
+);
+insert into route(train_no,date,station_id,day,arr_time,dep_time)VALUES(12058,'2022-11-16','UHL',0,'05:28','05:30');
+insert into route(train_no,date,station_id,day,arr_time,dep_time)VALUES(12058,'2022-11-16','HDL',0,'06:33','07:30');
+insert into route(train_no,date,station_id,day,arr_time,dep_time)VALUES(12059,'2022-11-16','U',0,'05:56','06:22');
+insert into route(train_no,date,station_id,day,arr_time,dep_time)VALUES(12059,'2022-11-16','L',0,'06:57','07:30');
+insert into route(train_no,date,station_id,day,arr_time,dep_time)VALUES(12058,'2022-11-16','UH',1,'08:28','08:30');
+insert into route(train_no,date,station_id,day,arr_time,dep_time)VALUES(12059,'2022-11-16','HDL',0,'09:18','09:20');
+insert into route(train_no,date,station_id,day,arr_time,dep_time)VALUES(12059,'2022-11-16','K',0,'09:21','09:40');
+
+
+
+create or replace function check_journey(s1 varchar(4),s2 varchar(4),d date, t TIME)
+returns table(st1 varchar(4),st2 varchar(4),tra_no integer,way integer) as $$
+declare count integer;
+string varchar(20);
+a RECORD;
+cur cursor for (select r2.station_id as station_id,r2.arr_time as arr_time,r2.date as d1, r2.day as DAY from route r2,route r1
+where r1.station_id<>r2.station_id and r1.station_id=s1 and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date)) 
+and r1.train_no=r2.train_no and (r1.date-r1.day)=(r2.date-r2.day)); 
+begin
+select into count count(*) 
+from route r1, route r2
+where r1.station_id=s1 and r2.station_id=s2 and r1.train_no=r2.train_no and r1.date=d and (r1.date-r1.day)=(r2.date-r2.day) and r1.dep_time>=t and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date));
+if count >=1 then
+return query
+	select  r1.station_id,r2.station_id,r1.train_no,0
+from route r1, route r2
+where r1.station_id=s1 and r2.station_id=s2 and r1.train_no=r2.train_no and r1.date=d and (r1.date-r1.day)=(r2.date-r2.day) and r1.dep_time>=t and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date));
+end if;
+if count=0 then
+open cur;
+	loop
+	fetch cur into a;
+	exit when not found;
+	select into count count(*) 
+	from route r1, route r2	
+	where r1.station_id=a.station_id and r2.station_id=s2 and r1.train_no=r2.train_no and r1.date=a.d1 and r1.date<=r2.date and (r1.date-r1.day)=(r2.date-r2.day) and r1.dep_time>=a.arr_time and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date));
+	if count >=1  then
+	return query
+	(
+	select r1.station_id,r2.station_id,r1.train_no,0 
+	from route r1, route r2
+	where r1.station_id=a.station_id and r2.station_id=s2 and r1.train_no=r2.train_no and r1.date=a.d1 and r1.date<=r2.date and (r1.date-r1.day)=(r2.date-r2.day) and r1.dep_time>=a.arr_time and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date))
+    UNION
+    select r1.station_id,r2.station_id,r1.train_no,1
+	from route r1, route r2
+	where r1.station_id=s1 and r2.station_id=a.station_id and r1.train_no=r2.train_no and r2.date=a.d1 and r1.date<=r2.date and (r1.date-r1.day)=(r2.date-r2.day) and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date)));
+    
+	
+	end if;
+	end loop;
+close cur;
+end if;
+end;
+$$ LANGUAGE plpgsql;
+
+select check_journey('UHL','K','2022-11-16','05:10');
+
+
+
+
+select r1.station_id,r2.station_id,r1.train_no,0 
+	from route r1, route r2
+	where r1.station_id=a.station_id and r2.station_id=s2 and r1.train_no=r2.train_no and r1.date=a.d1 and r1.date<=r2.date and (r1.date-r1.day)=(r2.date-r2.day) and r1.dep_time>=a.arr_time and ((r1.date=r2.date and r1.dep_time<=r2.arr_time) or(r1.date<r2.date))
+    UNION
+
+
