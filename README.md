@@ -36,39 +36,7 @@ thrown.
 passengers, (c) Coach number, berth number, and type (Lower, Middle, Upper, etc) of each passenger; (d) train
 number and (e) date of journey.
 
-7. Implement a search procedure for searching trains between any two stations. Note that this part is completely independent
-(from the perspective of evaluation) of the specifications mentioned in the previous section. In other words, teams of
-size-3 need not worry about station names in the ticket booking part. The following things need to be considered for
-implementing the search procedure.
-
-● You would have to store the stations (and their corresponding arrival and departure times) as served by a train in
-your database. Also, you would have to store the order of stations seen by the train on its route.
-
-● You can assume that at-most one break is needed to reach from anywhere to anywhere. If no path is found, then
-your application should return “journey plan is not possible.”
-
-● While recommending connections, you need to check the compatibility of the arrival and departure times of the
-trains involved in the connection.
-
-# Key Aspects:
-
-● Your schema should have the least possible redundancy of data and attributes must be stored in appropriate
-entities. You must clearly state any assumptions made while designing the schema. Reasonable ones would be
-accepted and graded.
-
-● Evaluation would be based on throughput. During the evaluation, we would give you a series of ticket booking
-requests (around 1000--2000). You are required to process these requests in a concurrent fashion (using
-multi-threading libraries available in JAVA, Python, etc.) on a system containing 50 cores (or more). The TAs
-would note the total time spent in processing these requests.
-
-● Your application should have relevant stored procedures and triggers to maintain/implement the required business
-logic constraints. For example, there should be appropriate stored procedures for releasing a train into the booking
-system (for a particular date), booking a ticket, etc. Checks should be made such that booking is not done before
-the train is released into the “booking system.” Checks should be made to ensure that different tickets do not book
-the same berth on the same train on the same journey date. Similarly, your system should not book more tickets
-than the number of seats available in a coach (and train) for the particular choice of journey date.
-
-
+7. Implemented a search procedure for searching trains between any two stations. 
 
 # How to run
 1. first run admin.java for releasing the trains by admin
